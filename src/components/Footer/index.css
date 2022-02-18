@@ -1,0 +1,10 @@
+.footer-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    position: absolute;
+    bottom: 10px;
+    width: 90%;
+    font-size: 20px;
+}   

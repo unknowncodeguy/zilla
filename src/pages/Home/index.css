@@ -1,0 +1,55 @@
+.div {
+  height: 100vh;
+  background-size: cover;
+  overflow-y: scroll;
+  color: #fff;
+}
+
+.home {
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.home .status {
+  margin-top: 86px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.home .font_52 {
+  font-size: 52px;
+  font-weight: bold;
+  line-height: 69px;
+  letter-spacing: 0;
+}
+
+.btn_group {
+  display: flex;
+}
+
+.total {
+  background-color: #3B4057;
+  padding: 13px 26px 13px 20px;
+  display: flex;
+}
+
+.total .font_24 {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 32px;
+}
+
+.total .font_52 {
+  font-size: 52px;
+  font-weight: lighter;
+  line-height: 69px;
+  margin-left: 10px;
+}
+
+.home .eggs {
+  margin-top: 118px;
+  display: flex;
+  flex-wrap: wrap;
+}
