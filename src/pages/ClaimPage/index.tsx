@@ -88,8 +88,8 @@ function ClaimPage() {
       }
       console.log('nfts', nfts);
       setNfts(nfts);
-      setTotalReward(totalReward);
     }
+    setTotalReward(totalReward);
   }
 
   const makeClaimTransaction = async (nft: any) => {
