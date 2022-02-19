@@ -1,4 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useLocation,
+  Navigate,
+  Outlet
+} from "react-router-dom";
 import * as anchor from '@project-serum/anchor';
 import { useConnection, useWallet, useAnchorWallet  } from "@solana/wallet-adapter-react";
 import {
@@ -13,11 +23,6 @@ import {
 import { useToasts } from 'react-toast-notifications'
 import { AccountLayout, Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 
-import Button from "../../components/Button/index";
-import Header from "../../components/Header";
-import Footer from '../../components/Footer';
-import EggBox from "../../components/EggBox";
-import ExploreModal from "../../components/ExploreModal";
 import { SolanaClient, SolanaClientProps } from '../../helpers/sol';
 import { 
   CREATOR_ADDRESS,
@@ -27,308 +32,246 @@ import {
   FIRE_TOKEN_MINT
 } from '../../config/main.js';
 import { IDL } from '../../constants/idl'
-import './index.css';
+
 import { getAccountInfo, getTokenAccountByOwner } from '../../api/api';
 import { sendTransactions } from '../../helpers/sol/connection';
 
-const lockingPeriod = [
-  {
-      title: "Land1",
-      fireCountTeenage: 90,
-      fireCountKing: 300,
-      lp: '2 Weeks',
-      image: 'CAVE_vulcano.png'
-  },
-  {
-      title: "Land2",
-      fireCountTeenage: 140,
-      fireCountKing: 360,
-      lp: '1 Month',
-      image: 'CAVE_desert.png'
-  },
-  {
-      title: "Land3",
-      fireCountTeenage: 210,
-      fireCountKing: 525,
-      lp: '2 Months',
-      image: 'CAVE_antartica.png'
-  }
-]
+import {getImg} from './../../utils/Helper'
+
+import './index.css';
 
 function HomePage() {
   const walletState = useWallet();
   const wallet = useAnchorWallet();
-  const [drakes, setDrakes] = useState([
-    {
-      imageUrl: '',
-      size: '',
-      mint: '',
-      tokenAccount: '',
-      name: ''
-    },
-  ]);
-  const [isSelectAll, setSelectAll] = useState(false);
-  const [currentDrake, setCurrentDrake] = useState(-1);
-  const [loading, setLoading] = useState(-1);
+
   const { connection } = useConnection();
+
+  const [loading, setLoading] = useState(false);
+  const [nfts, setNfts] = useState<any>([]);
+  const [nftsStaked, setNftsStaked] = useState<any>([]);
+  const [nftForStaking, setNftForStaking] = useState(-1);
+  const [page, setPage]  = useState(`stake`);
+  const [schedule, setSchedule]  = useState<any>([]);
+
+  const { addToast } = useToasts();
+
   const solanaClient = new SolanaClient({ rpcEndpoint: CLUSTER_API } as SolanaClientProps);
-  const { addToast } = useToasts()
-
-  const [fireCount, setFireCount] = useState(0)
-  const [openExplore, setOpenExplore] = useState(false)
-
-  const selectEgg = (id: any) => {
-      setCurrentDrake(id);
-      setSelectAll(false);
-      setOpenExplore(true)
-  }
-
-  const selectAll = () => {
-      console.log('click select all')
-      setSelectAll(true);
-      setOpenExplore(true)
-  }
 
   const getProvider = () => {
     if (wallet)
 		  return new anchor.Provider(connection, wallet, COMMITMENT as anchor.web3.ConfirmOptions);
 	}
+
+  const viweStake = (index: number) => {
+    setNftForStaking(index)
+    const nft = nfts[index];
+  }
+
+  const getClaim = (index: number) => {
+    addToast('Get Reward', { appearance: 'success' });
+  }
+
+  const getStaking = (index: number) => {
+    addToast('Get Staking', { appearance: 'success' });
+  }
   
-  const makeTransaction = async (program: anchor.Program<any>, poolSigner: PublicKey, pool: PublicKey, index:number, land: number) => {
-    const aTokenAccount = new Keypair();
-    const aTokenAccountRent = await connection.getMinimumBalanceForRentExemption(
-      AccountLayout.span
-    )
-    const drake = drakes[index];
-    let transaction = [];
-    let signers:any[] = [];
-    if (!walletState.publicKey)
-      return;
-    
-    transaction.push(SystemProgram.createAccount({
-      fromPubkey: walletState.publicKey,
-      newAccountPubkey: aTokenAccount.publicKey,
-      lamports: aTokenAccountRent,
-      space: AccountLayout.span,
-      programId: TOKEN_PROGRAM_ID
-    }));
-    transaction.push(Token.createInitAccountInstruction(
-      TOKEN_PROGRAM_ID,
-      new PublicKey(drake.mint),
-      aTokenAccount.publicKey,
-      poolSigner
-    ));
-    
-    signers.push(aTokenAccount);
-    
-    console.log('to account', aTokenAccount.publicKey.toString())
-    let type = drake.size === 'teenage' ? 1 : 2;
-    transaction.push(program.instruction.addNft(land + 1, type, {
-      accounts: {
-        user: walletState.publicKey,
-        mint: drake.mint,
-        pool: pool,
-        from: new PublicKey(drake.tokenAccount),
-        to: aTokenAccount.publicKey,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        systemProgram: SystemProgram.programId, 
-        rent: SYSVAR_RENT_PUBKEY
-      },
-      signers
-    }));
-    return { transaction, signers };
-  }
-
-  const clickSend = async (land: number) => {
-    setLoading(1);
-		const provider = getProvider();
-		const program = new anchor.Program(IDL, new PublicKey(PROGRAM_ID), provider);
-    console.log('programId', PROGRAM_ID);
-    console.log('new programId', program.programId.toString());
-    try {
-      if (!walletState.publicKey) {
-        addToast("Connect your wallet!", {
-          appearance: 'warning',
-          autoDismiss: true,
-        })
-        setLoading(-1)
-        return;
-      }
-      
-      if (land < 0 || land > 2) {
-        addToast("Select land!", {
-          appearance: 'warning',
-          autoDismiss: true,
-        })
-        setLoading(-1)
-        return;
-      } 
-      
-      setOpenExplore(false);
-      let instructionSet= [], signerSet = [];
-      let [pool, _nonce] = await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from('pool1'), walletState.publicKey.toBuffer()],
-        program.programId
-      );
-      let [poolSigner, _nonceSigner] = await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from('pool1 signer'), walletState.publicKey.toBuffer()],
-        program.programId
-      );
-      console.log('pool', pool.toString());
-      console.log('pool signer', poolSigner.toString());
-      const { result } = await getAccountInfo(pool.toBase58());
-      console.log('result', result);
-      if (!result.value) {
-        let transaction = [];
-        transaction.push(program.instruction.createUserPool(_nonce, _nonceSigner, {
-          accounts: {
-            pool: pool,
-            poolSigner: poolSigner,
-            user: walletState.publicKey,
-            systemProgram: SystemProgram.programId
-        }}));
-        instructionSet.push(transaction);
-        signerSet.push([]);
-      }
-      if (isSelectAll) {
-        for (let i = 0; i < drakes.length; i ++) {
-          let newTx: any = await makeTransaction(program, poolSigner, pool, i, land);
-          instructionSet.push(newTx.transaction);
-          signerSet.push(newTx.signers);
-        }
-        await sendTransactions(connection, walletState, instructionSet, signerSet)
-        setDrakes([]);
-      }
-      else {
-        if (currentDrake < 0 || currentDrake > drakes.length - 1) {
-          addToast("Select NFT!", {
-            appearance: 'warning',
-            autoDismiss: true,
-          })
-          setLoading(-1)
-          return;
-        }
-        let newTx:any = await makeTransaction(program, poolSigner, pool, currentDrake, land);
-        instructionSet.push(newTx.transaction);
-        signerSet.push(newTx.signers);
-        await sendTransactions(connection, walletState, instructionSet, signerSet);
-        setDrakes(drakes.filter((drake, idx: number) => idx !== currentDrake))
-      }
-      const data = await program.account.pool.fetch(pool);
-      console.log('data', data.nfts);
-      setLoading(-1);
-      setCurrentDrake(-1);
-    }
-    catch (error) {
-      console.log('error', error);
-      addToast("Staking failed!", {
-        appearance: 'error',
-        autoDismiss: true,
-      })
-      setLoading(-1)
-      return;
-    }
-
-    addToast("Staking success!", {
-      appearance: 'success',
-      autoDismiss: true,
-    })
-  }
-
-  const clickCancel = () => {
-    setOpenExplore(false)
-  }
-
   useEffect(() => {
-    setDrakes([]);
-    if (walletState.connected) {
-      setLoading(0);
-      const pubKey = walletState.publicKey?.toString() || '';
-      solanaClient.getAllCollectibles([pubKey]).then(result => {
-        let walletDrakes: any[] = [];
-        
-        if (result[pubKey]) {
-          console.log('result', result[pubKey])
-          result[pubKey].forEach((res: any) => {
-            if (res.creators.find((creator: any) => creator.address === CREATOR_ADDRESS &&
-              res.attributes.length > 2 && (res.attributes[0]?.value === 'teenage' || res.attributes[0]?.value === 'king') &&
-              res.name.indexOf('InfinityDrakes') >= 0)) {
-                walletDrakes.push(res);
-              }
-          })
-          setDrakes(walletDrakes.map(drake => {
-            return {
-              ...drake,
-              size: drake.attributes[0]?.value
-            }
-          }));
-        }
-        setLoading(-1);
-      });
-      if (walletState.publicKey) {
-        getTokenAccountByOwner(walletState.publicKey?.toString(), FIRE_TOKEN_MINT).then(result => {
-          if (result.result) {
-            const { value } = result.result;
-            if (value.length > 0) {
-              let total_fire = 0;
-              value.forEach((v: any) => {
-                total_fire += v.account?.data?.parsed?.info?.tokenAmount?.uiAmount;
-              })
-              setFireCount(total_fire);
-            }
+    (async () => {
+      
+      if (walletState.connected) {
+        setLoading(true);
+        const lists = [
+          {
+            image: `01.png`,
+            name: `01`,
+          },
+          {
+            image: `02.png`,
+            name: `02`
+          },
+          {
+            image: `03.png`,
+            name: `03`
+          },
+          {
+            image: `02.png`,
+            name: `04`
+          },
+          {
+            image: `01.png`,
+            name: `05`
+          },
+          {
+            image: `02.png`,
+            name: `06`
+          },
+          {
+            image: `02.png`,
+            name: `07`
+          },
+          {
+            image: `01.png`,
+            name: `08`
+          },
+          {
+            image: `03.png`,
+            name: `09`
+          },
+          {
+            image: `03.png`,
+            name: `10`
+          },
+          {
+            image: `01.png`,
+            name: `11`
           }
-        })
+        ];
+
+        setSchedule([
+          {days: 2, percentage: 10},
+          {days: 15, percentage: 20},
+          {days: 30, percentage: 50}
+        ]);
+
+        setNfts([...lists]);
+        setNftsStaked([...lists]);
+        setLoading(false);
       }
-    }
+    })()
   }, [walletState.connected]);
   
   return (
-    <div className="div">
+    <div className="container">
+      <img id="backImg" src={getImg('images/background.png')} alt="Background" />
       {
-        loading >= 0 ?
-          <div id="preloader"> 
-            { loading === 1 && <div style={{paddingTop: '150px', fontSize: '50px'}}>Staking...</div>}
-          </div> :
-          <div id="preloader" style={{display: 'none'}}></div>
+        loading && <div id="preloader"></div>
       }
-      <div className="home">
-          <Header />
-          <div className="status">
-              <div>
-                  <div className="font_52">
-                      InfinityExploration
-                  </div>
-                  <div className="btn_group"> 
-                      <WalletMultiButton className='wallet-btn'/>
-                      {/* { walletState.connected &&
-                          <Button value="SELECT ALL" style={{ width: 169, height: 50, marginLeft: 28 }} onClick={selectAll} dark />
-                      } */}
-                  </div>
-              </div>
-              <div className="total">
-                  <div className="font_24">
-                      TOTAL <br /> $FIRE
-                  </div>
-                  <div className="font_52">
-                      {fireCount}
-                  </div>
-              </div>
+      <header className="text-center text-shadow">
+        <Link to='/'><h1>STAKING</h1></Link>
+      </header>
+
+      {
+        !walletState.connected &&  
+        <div className="wallet-button-wrapper">
+          <WalletMultiButton className='wallet-button font-grey-light'/>
+        </div>
+      }
+
+      {
+        walletState.connected &&  
+        <div className="menu">
+          <div className="menu-wrapper d-flex justify-content-center">
+            <p className={`on-hover ${page == `stake` && `active`}`}  onClick={() => {setPage(`stake`); setNftForStaking(-1)}}>
+              STAKE
+            </p>
+            <p className={`on-hover ${page == `claim` && `active`}`} onClick={() => setPage(`claim`)}>
+              CLAIM
+            </p>
           </div>
-          <div className="eggs">
-              {drakes.map((drake, index) => (
-                  <EggBox img={drake.imageUrl} key={drake.mint} onClick={selectEgg} id={index} value={"SELECT"}/>
-              ))}
+        </div>
+      }
+
+      {
+        walletState.connected && page === `stake` && nftForStaking != -1 &&
+        <div className="nft-staking-wrapper">
+          <div className="border border-with-radius d-flex justify-content-between text-center nft-staking" style={{backgroundImage: `url('${process.env.PUBLIC_URL}/bg.png')`}}>
+            {schedule.map((item: any, index: any) => {
+              let p = 0;
+              return <div className="border border-with-radius stake-schedule" key={index}>
+                <div className="schedule-table">
+                  <table>
+                    <tbody>
+                      {
+                        Array.apply(null, new Array(5)).map((value, index) => {
+                          return <tr key={index}>
+                          {
+                            Array.apply(null, new Array(7)).map((value, index) => {
+                              p++;
+                              return <td key={index} className={`${p < (item.days + 1) && 'filled'} ${p > 30 && 'lasted'}`}></td>
+                            })
+                          }                         
+                          </tr>
+
+                        })
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                <div className="schedule-day">
+                  <p>{item.days} DAYS</p>
+                </div>
+                <div className="per-day">
+                  <p>{item.percentage} / DAY</p>
+                </div>
+
+                <div className="schedule-percentage text-center">
+                  <button className="on-hover" onClick={() => {getStaking(index)}}>STAKE</button>
+                </div>
+              </div>
+            })}
           </div>
-      </div>
-      {openExplore && <ExploreModal
-          lockingPeriod={lockingPeriod}
-          clickSend={clickSend}
-          clickCancel={clickCancel}
-          type={drakes[currentDrake].size}
-      />}
-      <Footer />
+        </div>
+      }
+
+      {
+        walletState.connected && page === `stake` && nftForStaking < 0 &&
+        <div className="nft-list-wrapper">
+          <div className="border border-with-radius d-flex nft-list ">
+            {nfts.map((item:any, index:number) => 
+              <div className="border on-hover nft-item stake-item" onClick={() => viweStake(index)} key={index}>
+                <img src={getImg(`images/nfts/${item.image}`)} alt="NFT Image"/>
+              </div>
+            )}
+          </div>
+        </div>
+      }
+
+      {
+        walletState.connected && page === `claim` && <>
+        <div className="nft-list-wrapper">
+          <div className="border border-with-radius d-flex nft-list">
+            {nfts.map((item:any, index:number) => 
+              <div key={index} className={`${index % 3 == 0 && 'disabled'} border nft-item claim-item`}>
+                <img src={getImg(`images/nfts/${item.image}`)} alt="NFT Image"/>
+
+                <div className="stake-info">
+                  <div className="info-text">
+                    <div className="d-flex justify-content-between">
+                      <p>{5}/day </p>
+                      <p>{index % 3 == 0 ? `Finished` : `15/30 days`}</p>
+                    </div>
+                    <div className="d-flex justify-content-between">
+                      <p>Total Booty: </p>
+                      <p>{150}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {index % 3 != 0 && 
+                <div className="claim-button">
+                  <button className="on-hover" onClick={() =>  index % 3 != 0 && getClaim(index)} key={index}>Claim</button>
+                </div>
+                }
+              </div>
+            )}
+          </div>
+        </div>
+        <div className=" text-center white total-reward">
+          Total Rewards: 1000 Booty
+        </div>
+        </>
+      }
+
     </div>
   )
 }
 
 export default HomePage;
+function item(item: any, index: any): import("react").ReactNode {
+  throw new Error('Function not implemented.');
+}
+
+function index(item: any, index: any): import("react").ReactNode {
+  throw new Error('Function not implemented.');
+}
+
