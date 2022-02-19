@@ -181,8 +181,6 @@ function StakePage() {
         wallet &&  
         <div className="menu">
           <div className="menu-wrapper d-flex justify-content-center">
-            
-            
             <p className={`on-hover active`}  onClick={() => handleRefresh()}>
               <Link to="/stake">STAKE</Link>
             </p>
@@ -196,7 +194,7 @@ function StakePage() {
       {
         wallet && curNftIndex !== -1 &&
         <div className="nft-staking-wrapper">
-          <div className="border border-with-radius d-flex justify-content-between text-center nft-staking" style={{backgroundImage: `url('${process.env.PUBLIC_URL}/bg.png')`}}>
+          <div className="border border-with-radius d-flex justify-content-between text-center nft-staking" style={{backgroundImage: `url('/bg.png')`}}>
             {schedule.map((item: any, index: any) => {
               let p = 0;
               return <div className="border border-with-radius stake-schedule" key={index}>

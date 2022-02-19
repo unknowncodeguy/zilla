@@ -216,7 +216,7 @@ function ClaimPage() {
                   <div className="info-text">
                     <div className="d-flex justify-content-between">
                       <p>{item.reward}/day </p>
-                      <p>{item.isFinished ? `Finished` : `${item.passedDays}/${item.days} days`}</p>
+                      <p>{`${item.passedDays}/${item.days} days`}</p>
                     </div>
                     <div className="d-flex justify-content-between">
                       <p>Total Booty: </p>

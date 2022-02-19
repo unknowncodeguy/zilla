@@ -117,11 +117,11 @@
   color: grey;
 }
 
-.container .menu .menu-wrapper a.active {
+.container .menu .menu-wrapper p.active a {
   color: white;
 }
 
-.container .menu .menu-wrapper a.active:hover {
+.container .menu .menu-wrapper p.active a:hover {
   color: white;
 }
 
@@ -359,7 +359,7 @@
   box-shadow: inset 0 0 8px var(--grey-light);
 }
 
-@media (min-width: 1441px) { /*1200*/
+@media only screen and (min-width: 1441px) { /*1200*/
   .container header h1 {
     padding-top: 40px;
   }
@@ -369,7 +369,7 @@
   }
 
   .container .nft-list-wrapper {
-    padding-top: 5.5%;
+    padding-top: 4.5%;
   }
 
   .container .nft-staking-wrapper {
@@ -377,7 +377,7 @@
   }
 }
 
-@media (min-width: 1661px) { /*1200*/
+@media only screen and (min-width: 1661px) { /*1200*/
   .container header h1 {
     padding-top: 58px;
   }
@@ -391,7 +391,7 @@
   }
 
   .container .nft-list-wrapper {
-    padding-top: 5.5%;
+    padding-top: 3.5%;
   }
 
   .container .nft-staking-wrapper {
