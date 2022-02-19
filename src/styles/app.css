@@ -1,0 +1,28 @@
+:root {
+    --grey-light: #a69c98;
+    --grey-strong: #6b6260;
+    --black: #393736;
+}
+
+* {
+    font-family: "GreatLakesNF";
+}
+
+.font-grey-strong {
+    color: var(--grey-strong);
+}
+
+.font-grey-light {
+    color: var(--grey-light);
+}
+
+.border {
+    border-top: solid var(--grey-light) 2px;
+    border-left: solid var(--grey-light) 2px;
+    border-right: solid var(--grey-strong) 2px;
+    border-bottom: solid var(--grey-strong) 2px;
+}
+
+.border-with-radius {
+    border-radius: 4px;
+}

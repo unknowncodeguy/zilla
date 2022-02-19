@@ -1,13 +1,20 @@
 import './App.css';
+import './styles/global.css';
+import './styles/fonts.css';
+import './styles/app.css';
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useContext, useReducer } from "react";
 import Modal  from 'react-modal';
 import {
   BrowserRouter,
   Routes,
-  Route, 
-  Navigate
-} from 'react-router-dom';
+  Route,
+  Link,
+  useNavigate,
+  useLocation,
+  Navigate,
+  Outlet
+} from "react-router-dom";
 
 import { getPhantomWallet, getSolflareWallet } from '@solana/wallet-adapter-wallets';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
@@ -16,7 +23,7 @@ import { clusterApiUrl } from "@solana/web3.js";
 import { ToastProvider } from 'react-toast-notifications'
 
 import Home from './pages/Home';
-import Claim from './pages/Claim';
+
 import { CLUSTER } from './config/main.js'
 import { CLUSTER_API } from './config/main';
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -34,14 +41,13 @@ const AppWithProvider = () => {
   );
   return (
       <ConnectionProvider endpoint={CLUSTER_API}>
-        <WalletProvider wallets={wallets} autoConnect>
+        <WalletProvider wallets={wallets}>
           <WalletModalProvider>
-            <ToastProvider>
+            <ToastProvider autoDismissTimeout={5000}>
               <BrowserRouter>
                 <Routes>
                   <Route path='/' element={<Home />} />
-                  <Route path='/claim' element={<Claim />} />
-                  <Route path='/' element={<Navigate to='Home' />}/>
+                  <Route path='/*' element={<h2>Page not found!</h2>}/>
                 </Routes>
               </BrowserRouter>
             </ToastProvider>
