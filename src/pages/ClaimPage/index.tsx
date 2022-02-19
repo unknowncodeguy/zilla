@@ -209,12 +209,12 @@ function ClaimPage() {
                 <div className="stake-info">
                   <div className="info-text">
                     <div className="d-flex justify-content-between">
-                      <p>{`${item.reward} $NAP`}  / day </p>
+                      <p>{`${item.reward} $SNAP`}  / day </p>
                       <p>{`${item.passedDays}/${item.days} days`}</p>
                     </div>
                     <div className="d-flex justify-content-between">
                       <p>Rewards: </p>
-                      <p>{item.reward * item.passedDays} $NAP</p>
+                      <p>{item.reward * item.passedDays} $SNAP</p>
                     </div>
                   </div>
                 </div>

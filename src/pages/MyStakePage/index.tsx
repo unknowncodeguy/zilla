@@ -136,8 +136,8 @@ function MyStakePage() {
             <div className="mystake-text">
               <p>Total STAKES : {totalStakes}</p>
               <p>MY TOTAL STAKES : {myStakes}</p>
-              <p>DAILY REWARDS : {dailyReward} $NAP</p>
-              <p>PENDING REWARDS : {pendingReward} $NAP</p>
+              <p>DAILY REWARDS : {dailyReward} $SNAP</p>
+              <p>PENDING REWARDS : {pendingReward} $SNAP</p>
             </div>
           </div>
         </div>
