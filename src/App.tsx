@@ -22,7 +22,8 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from "@solana/web3.js";
 import { ToastProvider } from 'react-toast-notifications'
 
-import Home from './pages/Home';
+import ClaimPage from './pages/ClaimPage';
+import StakePage from './pages/StakePage';
 
 import { CLUSTER } from './config/main.js'
 import { CLUSTER_API } from './config/main';
@@ -32,22 +33,23 @@ Modal.setAppElement('#root');
 
 const AppWithProvider = () => {
   const network = CLUSTER;
-  // const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
-  // console.log('endpoint', CLUSTER_API);
   const wallets = useMemo(
     () => [getPhantomWallet(), getSolflareWallet()],
     []
   );
   return (
       <ConnectionProvider endpoint={CLUSTER_API}>
-        <WalletProvider wallets={wallets}>
+        <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
             <ToastProvider autoDismissTimeout={5000}>
               <BrowserRouter>
                 <Routes>
-                  <Route path='/' element={<Home />} />
-                  <Route path='/*' element={<h2>Page not found!</h2>}/>
+                  <Route path="/" element={<StakePage />} />
+                  <Route path="/stake" element={<StakePage />} />
+                  <Route path="/claim" element={<ClaimPage />} />
+                  <Route path='/*' element={<h2 className="text-center mt-40">Page not found!</h2>}/>
                 </Routes>
               </BrowserRouter>
             </ToastProvider>

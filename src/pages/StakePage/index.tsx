@@ -4,10 +4,12 @@ import {
   Routes,
   Route,
   Link,
+  NavLink,
   useNavigate,
   useLocation,
   Navigate,
-  Outlet
+  Outlet,
+  
 } from "react-router-dom";
 import * as anchor from '@project-serum/anchor';
 import { useConnection, useWallet, useAnchorWallet  } from "@solana/wallet-adapter-react";
@@ -40,7 +42,7 @@ import {getImg} from './../../utils/Helper'
 
 import './index.css';
 
-function HomePage() {
+function StakePage() {
   const walletState = useWallet();
   const wallet = useAnchorWallet();
 
@@ -48,9 +50,7 @@ function HomePage() {
 
   const [loading, setLoading] = useState(false);
   const [nfts, setNfts] = useState<any>([]);
-  const [nftsStaked, setNftsStaked] = useState<any>([]);
   const [nftForStaking, setNftForStaking] = useState(-1);
-  const [page, setPage]  = useState(`stake`);
   const [schedule, setSchedule]  = useState<any>([]);
 
   const { addToast } = useToasts();
@@ -134,7 +134,6 @@ function HomePage() {
         ]);
 
         setNfts([...lists]);
-        setNftsStaked([...lists]);
         setLoading(false);
       }
     })()
@@ -161,18 +160,20 @@ function HomePage() {
         walletState.connected &&  
         <div className="menu">
           <div className="menu-wrapper d-flex justify-content-center">
-            <p className={`on-hover ${page == `stake` && `active`}`}  onClick={() => {setPage(`stake`); setNftForStaking(-1)}}>
-              STAKE
+            
+            
+            <p className={`on-hover active`}  onClick={() => {setNftForStaking(-1)}}>
+              <Link to="/stake">STAKE</Link>
             </p>
-            <p className={`on-hover ${page == `claim` && `active`}`} onClick={() => setPage(`claim`)}>
-              CLAIM
+            <p className={`on-hover`}>
+              <Link to="/claim">CLAIM</Link>
             </p>
           </div>
         </div>
       }
 
       {
-        walletState.connected && page === `stake` && nftForStaking != -1 &&
+        walletState.connected && nftForStaking != -1 &&
         <div className="nft-staking-wrapper">
           <div className="border border-with-radius d-flex justify-content-between text-center nft-staking" style={{backgroundImage: `url('${process.env.PUBLIC_URL}/bg.png')`}}>
             {schedule.map((item: any, index: any) => {
@@ -214,7 +215,7 @@ function HomePage() {
       }
 
       {
-        walletState.connected && page === `stake` && nftForStaking < 0 &&
+        walletState.connected && nftForStaking < 0 &&
         <div className="nft-list-wrapper">
           <div className="border border-with-radius d-flex nft-list ">
             {nfts.map((item:any, index:number) => 
@@ -225,53 +226,9 @@ function HomePage() {
           </div>
         </div>
       }
-
-      {
-        walletState.connected && page === `claim` && <>
-        <div className="nft-list-wrapper">
-          <div className="border border-with-radius d-flex nft-list">
-            {nfts.map((item:any, index:number) => 
-              <div key={index} className={`${index % 3 == 0 && 'disabled'} border nft-item claim-item`}>
-                <img src={getImg(`images/nfts/${item.image}`)} alt="NFT Image"/>
-
-                <div className="stake-info">
-                  <div className="info-text">
-                    <div className="d-flex justify-content-between">
-                      <p>{5}/day </p>
-                      <p>{index % 3 == 0 ? `Finished` : `15/30 days`}</p>
-                    </div>
-                    <div className="d-flex justify-content-between">
-                      <p>Total Booty: </p>
-                      <p>{150}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {index % 3 != 0 && 
-                <div className="claim-button">
-                  <button className="on-hover" onClick={() =>  index % 3 != 0 && getClaim(index)} key={index}>Claim</button>
-                </div>
-                }
-              </div>
-            )}
-          </div>
-        </div>
-        <div className=" text-center white total-reward">
-          Total Rewards: 1000 Booty
-        </div>
-        </>
-      }
-
     </div>
   )
 }
 
-export default HomePage;
-function item(item: any, index: any): import("react").ReactNode {
-  throw new Error('Function not implemented.');
-}
-
-function index(item: any, index: any): import("react").ReactNode {
-  throw new Error('Function not implemented.');
-}
+export default StakePage;
 
