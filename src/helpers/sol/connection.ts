@@ -135,6 +135,7 @@ import {
   ): Promise<{ number: number; txs: { txid: string; slot: number }[] }> => {
     if (!wallet.publicKey) throw new WalletNotConnectedError();
   
+    console.log('send transaction');
     const unsignedTxns: Transaction[] = [];
   
     if (!block) {

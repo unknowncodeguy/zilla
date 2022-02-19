@@ -3,17 +3,12 @@ import './styles/global.css';
 import './styles/fonts.css';
 import './styles/app.css';
 
-import React, { useState, useEffect, useMemo, useRef, useContext, useReducer } from "react";
+import React, { useMemo } from "react";
 import Modal  from 'react-modal';
 import {
   BrowserRouter,
   Routes,
-  Route,
-  Link,
-  useNavigate,
-  useLocation,
-  Navigate,
-  Outlet
+  Route
 } from "react-router-dom";
 
 import { getPhantomWallet, getSolflareWallet } from '@solana/wallet-adapter-wallets';
@@ -24,9 +19,10 @@ import { ToastProvider } from 'react-toast-notifications'
 
 import ClaimPage from './pages/ClaimPage';
 import StakePage from './pages/StakePage';
+import CONFIG from './config'
 
-import { CLUSTER } from './config/main.js'
-import { CLUSTER_API } from './config/main';
+const { CLUSTER } = CONFIG;
+
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 Modal.setAppElement('#root');
@@ -40,7 +36,7 @@ const AppWithProvider = () => {
     []
   );
   return (
-      <ConnectionProvider endpoint={CLUSTER_API}>
+      <ConnectionProvider endpoint={endpoint}>
         <WalletProvider wallets={wallets} autoConnect>
           <WalletModalProvider>
             <ToastProvider autoDismissTimeout={5000}>

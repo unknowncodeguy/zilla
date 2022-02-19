@@ -1,9 +1,9 @@
-export type InfinityDrakeStaking = {
+export type ZillaKongStaking = {
   "version": "0.1.0",
-  "name": "infinity_drake_staking",
+  "name": "zilla_kong_staking",
   "instructions": [
     {
-      "name": "initVault",
+      "name": "initialize",
       "accounts": [
         {
           "name": "vault",
@@ -11,7 +11,7 @@ export type InfinityDrakeStaking = {
           "isSigner": false
         },
         {
-          "name": "user",
+          "name": "admin",
           "isMut": false,
           "isSigner": true
         },
@@ -23,13 +23,13 @@ export type InfinityDrakeStaking = {
       ],
       "args": [
         {
-          "name": "bump",
+          "name": "bumpVault",
           "type": "u8"
         }
       ]
     },
     {
-      "name": "createUserPool",
+      "name": "createPool",
       "accounts": [
         {
           "name": "pool",
@@ -37,11 +37,6 @@ export type InfinityDrakeStaking = {
           "isSigner": false
         },
         {
-          "name": "poolSigner",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "user",
           "isMut": false,
           "isSigner": true
@@ -54,18 +49,19 @@ export type InfinityDrakeStaking = {
       ],
       "args": [
         {
-          "name": "bump1",
-          "type": "u8"
-        },
-        {
-          "name": "bump2",
+          "name": "bumpPool",
           "type": "u8"
         }
       ]
     },
     {
-      "name": "addNft",
+      "name": "createPoolData",
       "accounts": [
+        {
+          "name": "poolData",
+          "isMut": true,
+          "isSigner": false
+        },
         {
           "name": "user",
           "isMut": false,
@@ -77,32 +73,48 @@ export type InfinityDrakeStaking = {
           "isSigner": false
         },
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "systemProgram",
           "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bumpPoolData",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "stake",
+      "accounts": [
+        {
+          "name": "poolData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "nftFrom",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftTo",
+          "isMut": true,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
           "isMut": false,
           "isSigner": false
         }
@@ -111,23 +123,19 @@ export type InfinityDrakeStaking = {
         {
           "name": "method",
           "type": "u8"
-        },
-        {
-          "name": "drakeType",
-          "type": "u8"
         }
       ]
     },
     {
-      "name": "claimNft",
+      "name": "claim",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
+          "name": "poolData",
+          "isMut": false,
           "isSigner": false
         },
         {
-          "name": "poolSigner",
+          "name": "pool",
           "isMut": false,
           "isSigner": false
         },
@@ -140,11 +148,6 @@ export type InfinityDrakeStaking = {
           "name": "user",
           "isMut": false,
           "isSigner": true
-        },
-        {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
         },
         {
           "name": "nftFrom",
@@ -172,21 +175,36 @@ export type InfinityDrakeStaking = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "bump1",
-          "type": "u8"
-        },
-        {
-          "name": "bump2",
-          "type": "u8"
-        }
-      ]
+      "args": []
     }
   ],
   "accounts": [
     {
+      "name": "vault",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bumpVault",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
       "name": "pool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bumpPool",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "poolData",
       "type": {
         "kind": "struct",
         "fields": [
@@ -195,58 +213,20 @@ export type InfinityDrakeStaking = {
             "type": "publicKey"
           },
           {
-            "name": "nfts",
-            "type": {
-              "vec": {
-                "defined": "NftInfo"
-              }
-            }
-          },
-          {
-            "name": "size",
-            "type": "u32"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "bumpSigner",
-            "type": "u8"
-          }
-        ]
-      }
-    }
-  ],
-  "types": [
-    {
-      "name": "NftInfo",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
             "name": "mint",
             "type": "publicKey"
-          },
-          {
-            "name": "startDate",
-            "type": "u32"
-          },
-          {
-            "name": "endDate",
-            "type": "u32"
           },
           {
             "name": "method",
             "type": "u8"
           },
           {
-            "name": "drakeType",
-            "type": "u8"
+            "name": "startTime",
+            "type": "u32"
           },
           {
-            "name": "amount",
-            "type": "u64"
+            "name": "bumpPoolData",
+            "type": "u8"
           }
         ]
       }
@@ -256,42 +236,27 @@ export type InfinityDrakeStaking = {
     {
       "code": 6000,
       "name": "MethodOutRange",
-      "msg": "Land method is out of range."
+      "msg": "Method is out of range."
     },
     {
       "code": 6001,
-      "name": "DrakeTypeOutRange",
-      "msg": "Drake type is out of range."
+      "name": "InvaildUser",
+      "msg": "Invalid User."
     },
     {
       "code": 6002,
-      "name": "PoolOwnerInvalid",
-      "msg": "User is not pool owner."
-    },
-    {
-      "code": 6003,
-      "name": "VaultInvalid",
-      "msg": "Vault is invalid."
-    },
-    {
-      "code": 6004,
-      "name": "TokenNotExist",
-      "msg": "Token doesn't exist."
-    },
-    {
-      "code": 6005,
-      "name": "StakingLocked",
-      "msg": "Staking is locked."
+      "name": "ClaimLocked",
+      "msg": "Claiming Locked"
     }
   ]
 };
 
-export const IDL: InfinityDrakeStaking = {
+export const IDL: ZillaKongStaking = {
   "version": "0.1.0",
-  "name": "infinity_drake_staking",
+  "name": "zilla_kong_staking",
   "instructions": [
     {
-      "name": "initVault",
+      "name": "initialize",
       "accounts": [
         {
           "name": "vault",
@@ -299,7 +264,7 @@ export const IDL: InfinityDrakeStaking = {
           "isSigner": false
         },
         {
-          "name": "user",
+          "name": "admin",
           "isMut": false,
           "isSigner": true
         },
@@ -311,13 +276,13 @@ export const IDL: InfinityDrakeStaking = {
       ],
       "args": [
         {
-          "name": "bump",
+          "name": "bumpVault",
           "type": "u8"
         }
       ]
     },
     {
-      "name": "createUserPool",
+      "name": "createPool",
       "accounts": [
         {
           "name": "pool",
@@ -325,11 +290,6 @@ export const IDL: InfinityDrakeStaking = {
           "isSigner": false
         },
         {
-          "name": "poolSigner",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "user",
           "isMut": false,
           "isSigner": true
@@ -342,18 +302,19 @@ export const IDL: InfinityDrakeStaking = {
       ],
       "args": [
         {
-          "name": "bump1",
-          "type": "u8"
-        },
-        {
-          "name": "bump2",
+          "name": "bumpPool",
           "type": "u8"
         }
       ]
     },
     {
-      "name": "addNft",
+      "name": "createPoolData",
       "accounts": [
+        {
+          "name": "poolData",
+          "isMut": true,
+          "isSigner": false
+        },
         {
           "name": "user",
           "isMut": false,
@@ -365,32 +326,48 @@ export const IDL: InfinityDrakeStaking = {
           "isSigner": false
         },
         {
-          "name": "pool",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "systemProgram",
           "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bumpPoolData",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "stake",
+      "accounts": [
+        {
+          "name": "poolData",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "nftFrom",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "nftTo",
+          "isMut": true,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rent",
           "isMut": false,
           "isSigner": false
         }
@@ -399,23 +376,19 @@ export const IDL: InfinityDrakeStaking = {
         {
           "name": "method",
           "type": "u8"
-        },
-        {
-          "name": "drakeType",
-          "type": "u8"
         }
       ]
     },
     {
-      "name": "claimNft",
+      "name": "claim",
       "accounts": [
         {
-          "name": "pool",
-          "isMut": true,
+          "name": "poolData",
+          "isMut": false,
           "isSigner": false
         },
         {
-          "name": "poolSigner",
+          "name": "pool",
           "isMut": false,
           "isSigner": false
         },
@@ -428,11 +401,6 @@ export const IDL: InfinityDrakeStaking = {
           "name": "user",
           "isMut": false,
           "isSigner": true
-        },
-        {
-          "name": "mint",
-          "isMut": false,
-          "isSigner": false
         },
         {
           "name": "nftFrom",
@@ -460,21 +428,36 @@ export const IDL: InfinityDrakeStaking = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "bump1",
-          "type": "u8"
-        },
-        {
-          "name": "bump2",
-          "type": "u8"
-        }
-      ]
+      "args": []
     }
   ],
   "accounts": [
     {
+      "name": "vault",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bumpVault",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
       "name": "pool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bumpPool",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "poolData",
       "type": {
         "kind": "struct",
         "fields": [
@@ -483,58 +466,20 @@ export const IDL: InfinityDrakeStaking = {
             "type": "publicKey"
           },
           {
-            "name": "nfts",
-            "type": {
-              "vec": {
-                "defined": "NftInfo"
-              }
-            }
-          },
-          {
-            "name": "size",
-            "type": "u32"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          },
-          {
-            "name": "bumpSigner",
-            "type": "u8"
-          }
-        ]
-      }
-    }
-  ],
-  "types": [
-    {
-      "name": "NftInfo",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
             "name": "mint",
             "type": "publicKey"
-          },
-          {
-            "name": "startDate",
-            "type": "u32"
-          },
-          {
-            "name": "endDate",
-            "type": "u32"
           },
           {
             "name": "method",
             "type": "u8"
           },
           {
-            "name": "drakeType",
-            "type": "u8"
+            "name": "startTime",
+            "type": "u32"
           },
           {
-            "name": "amount",
-            "type": "u64"
+            "name": "bumpPoolData",
+            "type": "u8"
           }
         ]
       }
@@ -544,32 +489,17 @@ export const IDL: InfinityDrakeStaking = {
     {
       "code": 6000,
       "name": "MethodOutRange",
-      "msg": "Land method is out of range."
+      "msg": "Method is out of range."
     },
     {
       "code": 6001,
-      "name": "DrakeTypeOutRange",
-      "msg": "Drake type is out of range."
+      "name": "InvaildUser",
+      "msg": "Invalid User."
     },
     {
       "code": 6002,
-      "name": "PoolOwnerInvalid",
-      "msg": "User is not pool owner."
-    },
-    {
-      "code": 6003,
-      "name": "VaultInvalid",
-      "msg": "Vault is invalid."
-    },
-    {
-      "code": 6004,
-      "name": "TokenNotExist",
-      "msg": "Token doesn't exist."
-    },
-    {
-      "code": 6005,
-      "name": "StakingLocked",
-      "msg": "Staking is locked."
+      "name": "ClaimLocked",
+      "msg": "Claiming Locked"
     }
   ]
 };

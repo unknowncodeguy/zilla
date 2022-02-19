@@ -1,144 +1,165 @@
 import { useState, useEffect } from 'react';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Link,
-  NavLink,
-  useNavigate,
-  useLocation,
-  Navigate,
-  Outlet,
-  
-} from "react-router-dom";
+import { Link } from "react-router-dom";
 import * as anchor from '@project-serum/anchor';
-import { useConnection, useWallet, useAnchorWallet  } from "@solana/wallet-adapter-react";
+import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
 import {
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
-import { 
-  PublicKey,
-  SystemProgram,
-  Keypair,
-  SYSVAR_RENT_PUBKEY,
-} from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID} from "@solana/spl-token";
 import { useToasts } from 'react-toast-notifications'
-import { AccountLayout, Token, TOKEN_PROGRAM_ID} from "@solana/spl-token";
 
 import { SolanaClient, SolanaClientProps } from '../../helpers/sol';
-import { 
-  CREATOR_ADDRESS,
-  COMMITMENT,
-  CLUSTER_API, 
-  PROGRAM_ID,
-  FIRE_TOKEN_MINT
-} from '../../config/main.js';
+import CONFIG from '../../config';
 import { IDL } from '../../constants/idl'
-
-import { getAccountInfo, getTokenAccountByOwner } from '../../api/api';
+import {getImg, getProvider, makeATokenAccountTransaction} from './../../utils/Helper'
+import './index.css';
 import { sendTransactions } from '../../helpers/sol/connection';
 
-import {getImg} from './../../utils/Helper'
+const { PublicKey, SystemProgram } = anchor.web3;
+const { 
+  CLUSTER_API, 
+  NFT_UPDATE_AUTHORITY, 
+  PROGRAM_ID, 
+  POOL_SEEDS, 
+  POOL_DATA_SEEDS, 
+  NFT_COLLECTION_NAME,
+  METHODS
+} = CONFIG;
 
-import './index.css';
 
 function StakePage() {
-  const walletState = useWallet();
   const wallet = useAnchorWallet();
-
   const { connection } = useConnection();
-
   const [loading, setLoading] = useState(false);
   const [nfts, setNfts] = useState<any>([]);
-  const [nftForStaking, setNftForStaking] = useState(-1);
+  const [curNftIndex, setCurNftIndex] = useState(-1);
   const [schedule, setSchedule]  = useState<any>([]);
-
+  const solanaClient = new SolanaClient({ rpcEndpoint: CLUSTER_API } as SolanaClientProps);
   const { addToast } = useToasts();
 
-  const solanaClient = new SolanaClient({ rpcEndpoint: CLUSTER_API } as SolanaClientProps);
-
-  const getProvider = () => {
-    if (wallet)
-		  return new anchor.Provider(connection, wallet, COMMITMENT as anchor.web3.ConfirmOptions);
-	}
-
-  const viweStake = (index: number) => {
-    setNftForStaking(index)
-    const nft = nfts[index];
-  }
-
-  const getClaim = (index: number) => {
-    addToast('Get Reward', { appearance: 'success' });
-  }
-
-  const getStaking = (index: number) => {
-    addToast('Get Staking', { appearance: 'success' });
-  }
-  
   useEffect(() => {
     (async () => {
-      
-      if (walletState.connected) {
+      if (wallet) {
         setLoading(true);
-        const lists = [
-          {
-            image: `01.png`,
-            name: `01`,
-          },
-          {
-            image: `02.png`,
-            name: `02`
-          },
-          {
-            image: `03.png`,
-            name: `03`
-          },
-          {
-            image: `02.png`,
-            name: `04`
-          },
-          {
-            image: `01.png`,
-            name: `05`
-          },
-          {
-            image: `02.png`,
-            name: `06`
-          },
-          {
-            image: `02.png`,
-            name: `07`
-          },
-          {
-            image: `01.png`,
-            name: `08`
-          },
-          {
-            image: `03.png`,
-            name: `09`
-          },
-          {
-            image: `03.png`,
-            name: `10`
-          },
-          {
-            image: `01.png`,
-            name: `11`
-          }
-        ];
-
-        setSchedule([
-          {days: 2, percentage: 10},
-          {days: 15, percentage: 20},
-          {days: 30, percentage: 50}
-        ]);
-
-        setNfts([...lists]);
+        await loadData();
         setLoading(false);
       }
     })()
-  }, [walletState.connected]);
+  }, [wallet]);
   
+  const loadData = async () => {
+    setCurNftIndex(-1);
+    // get nfts from wallet
+    const wallets = [wallet!.publicKey!.toString()];
+    console.log('collection name', NFT_COLLECTION_NAME);
+    let nftList = await solanaClient.getAllCollectibles(wallets, [
+        { updateAuthority: NFT_UPDATE_AUTHORITY, collectionName: NFT_COLLECTION_NAME }
+    ]);
+    console.log('result', nftList);
+    if (nftList[wallet!.publicKey!.toString()] && nftList[wallet!.publicKey!.toString()]?.length > 0) {
+      setNfts(nftList[wallet!.publicKey!.toString()]);
+    }
+
+    setSchedule(METHODS);
+  }
+
+  const viewPlan = (index: number) => {
+    setCurNftIndex(index);
+  }
+
+  const makeStakeTransaction = async (nft: any, method: number) => {
+    const provider = getProvider(connection, wallet!);
+    const program = new anchor.Program(IDL, new PublicKey(PROGRAM_ID), provider);
+
+    let instructions: any[] = [], signers: any[] = [];
+    let [pool, bumpPool] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from(POOL_SEEDS), wallet!.publicKey!.toBuffer()],
+      new PublicKey(PROGRAM_ID)
+    );
+
+    let [poolData, bumpPoolData] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from(POOL_DATA_SEEDS), wallet!.publicKey!.toBuffer(), new PublicKey(nft.mint).toBuffer()],
+      new PublicKey(PROGRAM_ID)
+    );
+
+    // check if pool account is exist, else create it
+    const poolInfo:any = await connection.getAccountInfo(pool);
+    console.log('poolInfo', poolInfo);
+    if (!poolInfo) {
+      instructions.push(program.instruction.createPool(bumpPool, {
+        accounts: {
+          pool: pool,
+          user: wallet!.publicKey!,
+          systemProgram: SystemProgram.programId
+        }
+      }));
+    }
+
+     // check if poolData account is exist, else create it
+     const poolDataInfo:any = await connection.getAccountInfo(poolData);
+
+     if (!poolDataInfo) {
+       instructions.push(program.instruction.createPoolData(bumpPoolData, {
+         accounts: {
+           poolData: poolData,
+           mint: new PublicKey(nft.mint),
+           user: wallet!.publicKey!,
+           systemProgram: SystemProgram.programId
+         }
+       }))
+     }
+
+    // check if pool has associated accounts to hold nft, else create it
+    const transaction = await makeATokenAccountTransaction(connection, wallet!.publicKey, pool, new PublicKey(nft.mint));
+    instructions = [ ...instructions, ...transaction.instructions ];
+    signers = [ ...signers, ...transaction.signers];
+    const nftTo = transaction.tokenTo;
+    console.log('nftTo', nftTo.toString());
+    instructions.push(program.instruction.stake(method, {
+      accounts: {
+        poolData: poolData,
+        pool: pool,
+        user: wallet!.publicKey!,
+        nftFrom: new PublicKey(nft.tokenAccount),
+        nftTo: nftTo,
+        tokenProgram: TOKEN_PROGRAM_ID
+      }
+    }));
+
+    return { instructions, signers, nftTo }
+  }
+
+  const stake = async (method: number) => {
+    try {
+      setLoading(true)
+      const instructionSet = [], signerSet = [];
+      const { instructions, signers } = await makeStakeTransaction(nfts[curNftIndex], method);
+      instructionSet.push(instructions);
+      signerSet.push(signers);
+      console.log('instructioset', instructionSet, 'signerset', signerSet);
+      await sendTransactions(connection, wallet, instructionSet, signerSet);
+      changeState();
+      setLoading(false);
+      addToast('Staking success!', { appearance: 'success', autoDismiss: true });
+    }
+    catch (error) {
+      console.log('error', error);
+      setLoading(false);
+      addToast('Staking fail!', { appearance: 'error', autoDismiss: true });
+    }
+  }
+  
+  const changeState = async () => {
+    let newNFts = nfts.filter((_item: any, index: number) => index !== curNftIndex);
+    setNfts(newNFts);
+    setCurNftIndex(-1);
+  }
+
+  const handleRefresh = async () => {
+    setLoading(true);
+    await loadData();
+    setLoading(false);
+  }
   return (
     <div className="container">
       <img id="backImg" src={getImg('images/background.png')} alt="Background" />
@@ -150,19 +171,19 @@ function StakePage() {
       </header>
 
       {
-        !walletState.connected &&  
+        !wallet &&  
         <div className="wallet-button-wrapper">
           <WalletMultiButton className='wallet-button font-grey-light'/>
         </div>
       }
 
       {
-        walletState.connected &&  
+        wallet &&  
         <div className="menu">
           <div className="menu-wrapper d-flex justify-content-center">
             
             
-            <p className={`on-hover active`}  onClick={() => {setNftForStaking(-1)}}>
+            <p className={`on-hover active`}  onClick={() => handleRefresh()}>
               <Link to="/stake">STAKE</Link>
             </p>
             <p className={`on-hover`}>
@@ -173,7 +194,7 @@ function StakePage() {
       }
 
       {
-        walletState.connected && nftForStaking != -1 &&
+        wallet && curNftIndex !== -1 &&
         <div className="nft-staking-wrapper">
           <div className="border border-with-radius d-flex justify-content-between text-center nft-staking" style={{backgroundImage: `url('${process.env.PUBLIC_URL}/bg.png')`}}>
             {schedule.map((item: any, index: any) => {
@@ -202,11 +223,11 @@ function StakePage() {
                   <p>{item.days} DAYS</p>
                 </div>
                 <div className="per-day">
-                  <p>{item.percentage} / DAY</p>
+                  <p>{item.reward} / DAY</p>
                 </div>
 
                 <div className="schedule-percentage text-center">
-                  <button className="on-hover" onClick={() => {getStaking(index)}}>STAKE</button>
+                  <button className="on-hover" onClick={() => {stake(index)}}>STAKE</button>
                 </div>
               </div>
             })}
@@ -215,12 +236,12 @@ function StakePage() {
       }
 
       {
-        walletState.connected && nftForStaking < 0 &&
+        wallet && curNftIndex < 0 &&
         <div className="nft-list-wrapper">
           <div className="border border-with-radius d-flex nft-list ">
             {nfts.map((item:any, index:number) => 
-              <div className="border on-hover nft-item stake-item" onClick={() => viweStake(index)} key={index}>
-                <img src={getImg(`images/nfts/${item.image}`)} alt="NFT Image"/>
+              <div className="border on-hover nft-item stake-item" onClick={() => viewPlan(index)} key={index}>
+                <img src={item?.image} alt="NFT"/>
               </div>
             )}
           </div>
