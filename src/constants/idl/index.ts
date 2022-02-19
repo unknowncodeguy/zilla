@@ -99,6 +99,11 @@ export type ZillaKongStaking = {
           "isSigner": false
         },
         {
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "user",
           "isMut": false,
           "isSigner": true
@@ -141,7 +146,7 @@ export type ZillaKongStaking = {
         },
         {
           "name": "vault",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -187,6 +192,10 @@ export type ZillaKongStaking = {
           {
             "name": "bumpVault",
             "type": "u8"
+          },
+          {
+            "name": "totalCount",
+            "type": "u32"
           }
         ]
       }
@@ -352,6 +361,11 @@ export const IDL: ZillaKongStaking = {
           "isSigner": false
         },
         {
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "user",
           "isMut": false,
           "isSigner": true
@@ -394,7 +408,7 @@ export const IDL: ZillaKongStaking = {
         },
         {
           "name": "vault",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -440,6 +454,10 @@ export const IDL: ZillaKongStaking = {
           {
             "name": "bumpVault",
             "type": "u8"
+          },
+          {
+            "name": "totalCount",
+            "type": "u32"
           }
         ]
       }

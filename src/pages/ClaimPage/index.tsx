@@ -35,7 +35,6 @@ function ClaimPage() {
   const { connection } = useConnection();
   const [loading, setLoading] = useState(false);
   const [nfts, setNfts] = useState<any>([]);
-  const [totalReward, setTotalReward] = useState(0);
   const solanaClient = new SolanaClient({ rpcEndpoint: CLUSTER_API } as SolanaClientProps);
   const { addToast } = useToasts();
 
@@ -65,7 +64,6 @@ function ClaimPage() {
     const provider = getProvider(connection, wallet!);
     const program = new anchor.Program(IDL, new PublicKey(PROGRAM_ID), provider);
     const curChainTime = await getCurrentChainTime(connection);
-    let totalReward = 0;
     if (nftList[pool.toString()] && nftList[pool.toString()]?.length > 0) {
       for (let i = 0 ; i < nftList[pool.toString()].length; i ++) {
         let nft = nftList[pool.toString()][i];
@@ -84,12 +82,10 @@ function ClaimPage() {
           passedDays,
           isFinished
         });
-        if (isFinished) totalReward += METHODS[data.method].reward * METHODS[data.method].days
       }
       console.log('nfts', nfts);
       setNfts(nfts);
     }
-    setTotalReward(totalReward);
   }
 
   const makeClaimTransaction = async (nft: any) => {
@@ -158,10 +154,8 @@ function ClaimPage() {
   }
   
   const changeState = async (curNftIndex: number) => {
-    let newTotalReward = totalReward - nfts[curNftIndex].reward * nfts[curNftIndex].days;
     let newNFts = nfts.filter((_item: any, index: number) => index !== curNftIndex);
     setNfts(newNFts);
-    setTotalReward(newTotalReward);
   }
 
   const handleRefresh = async () => {
@@ -220,12 +214,12 @@ function ClaimPage() {
                 <div className="stake-info">
                   <div className="info-text">
                     <div className="d-flex justify-content-between">
-                      <p>{item.reward} / day </p>
+                      <p>{`${item.reward} $NAP`}  / day </p>
                       <p>{`${item.passedDays}/${item.days} days`}</p>
                     </div>
                     <div className="d-flex justify-content-between">
                       <p>Rewards: </p>
-                      <p>{item.reward * item.days} Booty</p>
+                      <p>{item.reward * item.days} $NAP</p>
                     </div>
                   </div>
                 </div>

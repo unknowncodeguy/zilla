@@ -14,6 +14,7 @@ import { IDL } from '../../constants/idl'
 import {getImg, getProvider, makeATokenAccountTransaction} from './../../utils/Helper'
 import './index.css';
 import { sendTransactions } from '../../helpers/sol/connection';
+import { VAULT_PDA } from '../../config/dev';
 
 const { PublicKey, SystemProgram } = anchor.web3;
 const { 
@@ -119,6 +120,7 @@ function StakePage() {
       accounts: {
         poolData: poolData,
         pool: pool,
+        vault: new PublicKey(VAULT_PDA),
         user: wallet!.publicKey!,
         nftFrom: new PublicKey(nft.tokenAccount),
         nftTo: nftTo,
