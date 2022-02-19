@@ -17,8 +17,10 @@ import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from "@solana/web3.js";
 import { ToastProvider } from 'react-toast-notifications'
 
-import ClaimPage from './pages/ClaimPage';
 import StakePage from './pages/StakePage';
+import MyStakePage from './pages/MyStakePage';
+import ClaimPage from './pages/ClaimPage';
+
 import CONFIG from './config'
 
 const { CLUSTER } = CONFIG;
@@ -44,6 +46,7 @@ const AppWithProvider = () => {
                 <Routes>
                   <Route path="/" element={<StakePage />} />
                   <Route path="/stake" element={<StakePage />} />
+                  <Route path="/mystake" element={<MyStakePage />} />
                   <Route path="/claim" element={<ClaimPage />} />
                   <Route path='/*' element={<h2 className="text-center mt-40">Page not found!</h2>}/>
                 </Routes>

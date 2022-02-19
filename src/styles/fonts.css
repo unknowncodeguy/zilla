@@ -3,3 +3,9 @@
     font-style: normal;
 	src: url('./../assets/fonts/GreatLakesNF.ttf');
 }
+
+@font-face {
+	font-family: 'Jenna';
+    font-style: normal;
+	src: url('./../assets/fonts/JennaSue.ttf');
+}

@@ -30,7 +30,7 @@ const {
   DAY_TIME
 } = CONFIG;
 
-function ClaimPage() {
+function MyStakePage() {
   const wallet = useAnchorWallet();
   const { connection } = useConnection();
   const [loading, setLoading] = useState(false);
@@ -199,10 +199,10 @@ function ClaimPage() {
             <p className={`on-hover`}>
               <Link to="/stake">STAKE</Link>
             </p>
-            <p className={`on-hover`}>
+            <p className={`on-hover active`}>
               <Link to="/mystake">My Stakes</Link>
             </p>
-            <p className={`on-hover active`}>
+            <p className={`on-hover`}>
               <Link to="/claim" onClick={() => handleRefresh()}>CLAIM</Link>
             </p>
           </div>
@@ -213,30 +213,12 @@ function ClaimPage() {
         wallet && <>
         <div className="nft-list-wrapper">
           <div className="border border-with-radius d-flex nft-list">
-            {nfts.map((item:any, index:number) => 
-              <div key={index} className={`${!item.isFinished && 'disabled'} border nft-item claim-item`}>
-                <img src={item?.image} alt="NFT"/>
-
-                <div className="stake-info">
-                  <div className="info-text">
-                    <div className="d-flex justify-content-between">
-                      <p>{item.reward} / day </p>
-                      <p>{`${item.passedDays}/${item.days} days`}</p>
-                    </div>
-                    <div className="d-flex justify-content-between">
-                      <p>Rewards: </p>
-                      <p>{item.reward * item.days} Booty</p>
-                    </div>
-                  </div>
-                </div>
-
-                {item.isFinished && 
-                <div className="claim-button">
-                  <button className="on-hover" onClick={() => {claim(index)}} key={index}>Claim</button>
-                </div>
-                }
-              </div>
-            )}
+            <div className="mystake-text">
+              <p>Total STAKES : {1000}</p>
+              <p>MY TOTAL STAKES : {1000}</p>
+              <p>DAILY REWARDS : {1000}</p>
+              <p>PENDING REWARDS : {1000}</p>
+            </div>
           </div>
         </div>
         {/* <div className=" text-center white total-reward">
@@ -248,5 +230,5 @@ function ClaimPage() {
   )
 }
 
-export default ClaimPage;
+export default MyStakePage;
 

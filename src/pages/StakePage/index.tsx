@@ -185,7 +185,10 @@ function StakePage() {
               <Link to="/stake">STAKE</Link>
             </p>
             <p className={`on-hover`}>
-              <Link to="/claim">CLAIM</Link>
+              <Link to="/mystake">My Stakes</Link>
+            </p>
+            <p className={`on-hover`}>
+              <Link to="/claim" onClick={() => handleRefresh()}>CLAIM</Link>
             </p>
           </div>
         </div>
