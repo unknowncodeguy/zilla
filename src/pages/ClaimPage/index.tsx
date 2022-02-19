@@ -27,7 +27,6 @@ const {
   VAULT_PDA,
   NFT_COLLECTION_NAME,
   METHODS,
-  DAY_TIME
 } = CONFIG;
 
 function ClaimPage() {
