@@ -181,8 +181,6 @@ function StakePage() {
         wallet &&  
         <div className="menu">
           <div className="menu-wrapper d-flex justify-content-center">
-            
-            
             <p className={`on-hover active`}  onClick={() => handleRefresh()}>
               <Link to="/stake">STAKE</Link>
             </p>
