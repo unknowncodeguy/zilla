@@ -158,8 +158,10 @@ function ClaimPage() {
   }
   
   const changeState = async (curNftIndex: number) => {
+    let newTotalReward = totalReward - nfts[curNftIndex].reward * nfts[curNftIndex].days;
     let newNFts = nfts.filter((_item: any, index: number) => index !== curNftIndex);
     setNfts(newNFts);
+    setTotalReward(newTotalReward);
   }
 
   const handleRefresh = async () => {
