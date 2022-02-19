@@ -11,7 +11,7 @@ import { useToasts } from 'react-toast-notifications'
 import { SolanaClient, SolanaClientProps } from '../../helpers/sol';
 import CONFIG from '../../config';
 import { IDL } from '../../constants/idl'
-import {getCurrentChainTime, getImg, getProvider, makeATokenAccountTransaction, numberToFixed} from '../../utils/Helper'
+import {getCurrentChainTime, getDaysPassed, getImg, getProvider, makeATokenAccountTransaction, numberToFixed} from '../../utils/Helper'
 import { sendTransactions } from '../../helpers/sol/connection';
 import './index.css';
 
@@ -59,6 +59,7 @@ function MyStakePage() {
         { updateAuthority: NFT_UPDATE_AUTHORITY, collectionName: NFT_COLLECTION_NAME }
     ]);
     console.log('result', nftList);
+    const curChainTime = await getCurrentChainTime(connection);
     // get nft data
     const provider = getProvider(connection, wallet!);
     const program = new anchor.Program(IDL, new PublicKey(PROGRAM_ID), provider);
@@ -74,9 +75,10 @@ function MyStakePage() {
           new PublicKey(PROGRAM_ID)
         );
         const data = await program.account.poolData.fetch(pool_data);
+        const passedDays = await getDaysPassed(curChainTime!, data.startTime);
         myStakes ++;
         dailyReward += METHODS[data.method].reward;
-        pendingReward += METHODS[data.method].reward * METHODS[data.method].days;
+        pendingReward += METHODS[data.method].reward * passedDays;
       }
     }
 

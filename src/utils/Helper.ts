@@ -3,7 +3,7 @@ import * as anchor from '@project-serum/anchor';
 import CONFIG from '../config';
 import { AnchorWallet } from '@solana/wallet-adapter-react';
 import { AccountLayout, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-const { COMMITMENT } = CONFIG;
+const { COMMITMENT, DAY_TIME } = CONFIG;
 
 export const getImg = (img: string) => {
     if (img === undefined)
@@ -112,4 +112,9 @@ export const getCurrentChainTime = async (connection: anchor.web3.Connection) =>
     const slot = await connection.getSlot(COMMITMENT);
     const curChainTime = await connection.getBlockTime(slot);
     return curChainTime;
+}
+
+export const getDaysPassed = async (currentTime: number, startTime: number) => {
+    const daysPassed = numberToFixed((currentTime - startTime) / DAY_TIME, 0);
+    return daysPassed < 0 ? 0 : daysPassed;
 }

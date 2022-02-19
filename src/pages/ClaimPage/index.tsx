@@ -11,7 +11,7 @@ import { useToasts } from 'react-toast-notifications'
 import { SolanaClient, SolanaClientProps } from '../../helpers/sol';
 import CONFIG from '../../config';
 import { IDL } from '../../constants/idl'
-import {getCurrentChainTime, getImg, getProvider, makeATokenAccountTransaction, numberToFixed} from '../../utils/Helper'
+import {getCurrentChainTime, getImg, getProvider, makeATokenAccountTransaction, getDaysPassed} from '../../utils/Helper'
 import { sendTransactions } from '../../helpers/sol/connection';
 import './index.css';
 
@@ -164,11 +164,6 @@ function ClaimPage() {
     setLoading(false);
   }
 
-  const getDaysPassed = async (currentTime: number, startTime: number) => {
-    const daysPassed = numberToFixed((currentTime - startTime) / DAY_TIME, 0);
-    return daysPassed < 0 ? 0 : daysPassed;
-  }
-
   return (
     <div className="container">
       <img id="backImg" src={getImg('images/background.png')} alt="Background" />
@@ -219,7 +214,7 @@ function ClaimPage() {
                     </div>
                     <div className="d-flex justify-content-between">
                       <p>Rewards: </p>
-                      <p>{item.reward * item.days} $NAP</p>
+                      <p>{item.reward * item.passedDays} $NAP</p>
                     </div>
                   </div>
                 </div>
