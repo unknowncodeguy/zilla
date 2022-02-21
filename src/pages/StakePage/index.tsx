@@ -23,7 +23,8 @@ const {
   POOL_SEEDS, 
   POOL_DATA_SEEDS, 
   NFT_COLLECTION_NAME,
-  METHODS
+  METHODS,
+  VAULT_PDA
 } = CONFIG;
 
 
@@ -119,6 +120,7 @@ function StakePage() {
       accounts: {
         poolData: poolData,
         pool: pool,
+        vault: new PublicKey(VAULT_PDA),
         user: wallet!.publicKey!,
         nftFrom: new PublicKey(nft.tokenAccount),
         nftTo: nftTo,
