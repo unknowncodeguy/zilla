@@ -146,7 +146,6 @@
   overflow-y: auto;
   padding: 1vw;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
@@ -376,6 +375,12 @@
 
 .container .nft-staking-wrapper .nft-staking .stake-schedule .schedule-percentage button:hover {
   box-shadow: inset 0 0 8px var(--grey-light);
+}
+
+@media only screen and (min-width: 1024px) { /*1200*/
+  .container .nft-list-wrapper .nft-list .nft-item.claim-item .stake-info .info-text > div p {
+    font-size: 12px;
+  }
 }
 
 @media only screen and (min-width: 1441px) { /*1200*/

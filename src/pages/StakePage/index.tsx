@@ -14,7 +14,6 @@ import { IDL } from '../../constants/idl'
 import {getImg, getProvider, makeATokenAccountTransaction} from './../../utils/Helper'
 import './index.css';
 import { sendTransactions } from '../../helpers/sol/connection';
-import { VAULT_PDA } from '../../config/dev';
 
 const { PublicKey, SystemProgram } = anchor.web3;
 const { 
@@ -24,7 +23,8 @@ const {
   POOL_SEEDS, 
   POOL_DATA_SEEDS, 
   NFT_COLLECTION_NAME,
-  METHODS
+  METHODS,
+  VAULT_PDA
 } = CONFIG;
 
 
