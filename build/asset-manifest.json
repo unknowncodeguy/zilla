@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.css": "/static/css/main.9db9dd54.chunk.css",
-    "main.js": "/static/js/main.e961b1a5.chunk.js",
+    "main.css": "/static/css/main.6c7364d1.chunk.css",
+    "main.js": "/static/js/main.f815f0f1.chunk.js",
     "runtime-main.js": "/static/js/runtime-main.d733170b.js",
     "static/css/2.70172a76.chunk.css": "/static/css/2.70172a76.chunk.css",
-    "static/js/2.6044b81a.chunk.js": "/static/js/2.6044b81a.chunk.js",
+    "static/js/2.72647585.chunk.js": "/static/js/2.72647585.chunk.js",
     "index.html": "/index.html",
-    "static/js/2.6044b81a.chunk.js.LICENSE.txt": "/static/js/2.6044b81a.chunk.js.LICENSE.txt",
+    "static/js/2.72647585.chunk.js.LICENSE.txt": "/static/js/2.72647585.chunk.js.LICENSE.txt",
     "static/media/GreatLakesNF.ttf": "/static/media/GreatLakesNF.eeb93496.ttf",
     "static/media/JennaSue.ttf": "/static/media/JennaSue.272007c5.ttf",
     "static/media/background.png": "/static/media/background.d11d9de0.png",
@@ -15,8 +15,8 @@
   "entrypoints": [
     "static/js/runtime-main.d733170b.js",
     "static/css/2.70172a76.chunk.css",
-    "static/js/2.6044b81a.chunk.js",
-    "static/css/main.9db9dd54.chunk.css",
-    "static/js/main.e961b1a5.chunk.js"
+    "static/js/2.72647585.chunk.js",
+    "static/css/main.6c7364d1.chunk.css",
+    "static/js/main.f815f0f1.chunk.js"
   ]
 }
