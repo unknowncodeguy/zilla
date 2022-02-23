@@ -46,6 +46,7 @@ function StakePage() {
         setLoading(false);
       }
     })()
+    // eslint-disable-next-line
   }, [wallet]);
   
   const loadData = async () => {

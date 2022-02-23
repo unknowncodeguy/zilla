@@ -5,14 +5,11 @@ import { useConnection, useAnchorWallet } from "@solana/wallet-adapter-react";
 import {
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
-import { TOKEN_PROGRAM_ID} from "@solana/spl-token";
-import { useToasts } from 'react-toast-notifications'
 
 import { SolanaClient, SolanaClientProps } from '../../helpers/sol';
 import CONFIG from '../../config';
 import { IDL } from '../../constants/idl'
-import {getCurrentChainTime, getDaysPassed, getImg, getProvider, makeATokenAccountTransaction, numberToFixed} from '../../utils/Helper'
-import { sendTransactions } from '../../helpers/sol/connection';
+import {getCurrentChainTime, getDaysPassed, getImg, getProvider} from '../../utils/Helper'
 import './index.css';
 
 const { PublicKey } = anchor.web3;
@@ -36,7 +33,6 @@ function MyStakePage() {
   const [dailyReward, setDailyReward] = useState(0);
   const [pendingReward, setPendingReward] = useState(0);
   const solanaClient = new SolanaClient({ rpcEndpoint: CLUSTER_API } as SolanaClientProps);
-  const { addToast } = useToasts();
 
   useEffect(() => {
     (async () => {
@@ -46,11 +42,12 @@ function MyStakePage() {
         setLoading(false);
       }
     })()
+    // eslint-disable-next-line
   }, [wallet]);
   
   const loadData = async () => {
     // get nfts from pool
-    let [pool, bumpPool] = await anchor.web3.PublicKey.findProgramAddress(
+    let [pool] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(POOL_SEEDS), wallet!.publicKey!.toBuffer()],
       new PublicKey(PROGRAM_ID)
     );
@@ -65,12 +62,12 @@ function MyStakePage() {
     const program = new anchor.Program(IDL, new PublicKey(PROGRAM_ID), provider);
     let pendingReward = 0, dailyReward = 0, totalStakes = 0, myStakes = 0;
     const vaultData = await program.account.vault.fetch(new PublicKey(VAULT_PDA));
-    totalStakes =vaultData.totalCount;
+    totalStakes = vaultData.totalCount;
     if (nftList[pool.toString()] && nftList[pool.toString()]?.length > 0) {
       for (let i = 0 ; i < nftList[pool.toString()].length; i ++) {
         let nft = nftList[pool.toString()][i];
         console.log('nft', nft);
-        let [pool_data, bumpPool] = await anchor.web3.PublicKey.findProgramAddress(
+        let [pool_data] = await anchor.web3.PublicKey.findProgramAddress(
           [Buffer.from(POOL_DATA_SEEDS), wallet!.publicKey!.toBuffer(), new PublicKey(nft.mint).toBuffer()],
           new PublicKey(PROGRAM_ID)
         );

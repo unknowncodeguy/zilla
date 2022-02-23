@@ -14,8 +14,8 @@ type SolanaNFTMetadata = { type: SolanaNFTType; url: string }
 
 const SOLANA_CLUSTER_ENDPOINT = CLUSTER_API
 const METADATA_PROGRAM_ID_PUBLIC_KEY = new PublicKey('metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s')
+// eslint-disable-next-line
 const METADATA_REPLACE = new RegExp('\u0000', 'g');
-
 export async function decodeMetadata(buffer: Buffer) {
   const metadata = borsh.deserializeUnchecked(
     METADATA_SCHEMA,

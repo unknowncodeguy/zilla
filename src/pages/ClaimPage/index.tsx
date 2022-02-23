@@ -37,19 +37,9 @@ function ClaimPage() {
   const solanaClient = new SolanaClient({ rpcEndpoint: CLUSTER_API } as SolanaClientProps);
   const { addToast } = useToasts();
 
-  useEffect(() => {
-    (async () => {
-      if (wallet) {
-        setLoading(true);
-        await loadData();
-        setLoading(false);
-      }
-    })()
-  }, [wallet]);
-  
   const loadData = async () => {
     // get nfts from pool
-    let [pool, bumpPool] = await anchor.web3.PublicKey.findProgramAddress(
+    let [pool] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(POOL_SEEDS), wallet!.publicKey!.toBuffer()],
       new PublicKey(PROGRAM_ID)
     );
@@ -67,7 +57,7 @@ function ClaimPage() {
       for (let i = 0 ; i < nftList[pool.toString()].length; i ++) {
         let nft = nftList[pool.toString()][i];
         console.log('nft', nft);
-        let [pool_data, bumpPool] = await anchor.web3.PublicKey.findProgramAddress(
+        let [pool_data] = await anchor.web3.PublicKey.findProgramAddress(
           [Buffer.from(POOL_DATA_SEEDS), wallet!.publicKey!.toBuffer(), new PublicKey(nft.mint).toBuffer()],
           new PublicKey(PROGRAM_ID)
         );
@@ -87,17 +77,29 @@ function ClaimPage() {
     }
   }
 
+  useEffect(() => {
+    (async () => {
+      if (wallet) {
+        setLoading(true);
+        await loadData();
+        setLoading(false);
+      }
+    })()
+    // eslint-disable-next-line
+  }, [wallet]);
+  
+
   const makeClaimTransaction = async (nft: any) => {
     const provider = getProvider(connection, wallet!);
     const program = new anchor.Program(IDL, new PublicKey(PROGRAM_ID), provider);
 
     let instructions: any[] = [], signers: any[] = [];
-    let [pool, bumpPool] = await anchor.web3.PublicKey.findProgramAddress(
+    let [pool] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(POOL_SEEDS), wallet!.publicKey!.toBuffer()],
       new PublicKey(PROGRAM_ID)
     );
 
-    let [poolData, bumpPoolData] = await anchor.web3.PublicKey.findProgramAddress(
+    let [poolData] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from(POOL_DATA_SEEDS), wallet!.publicKey!.toBuffer(), new PublicKey(nft.mint).toBuffer()],
       new PublicKey(PROGRAM_ID)
     );
